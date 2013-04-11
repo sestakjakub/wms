@@ -7,6 +7,13 @@ and open the template in the editor.
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <title></title>
+        <link rel="stylesheet" href="jquerymobile/jquery.mobile-1.3.0.min.css" />
+        <script src="jquerymobile/jquery-1.8.2.min.js"></script>-->
+        <script src="jquerymobile/jquery.mobile-1.3.0.min.js"></script>
+        <!--LEAFLET-->
+        <link rel="stylesheet" href="leaflet/leaflet.css" />
+	<!--[if lte IE 8]><link rel="stylesheet" href="leaflet/leaflet.ie.css" /><![endif]-->
+        <script src="leaflet/leaflet.js"></script>
     </head>
     <body>
         
