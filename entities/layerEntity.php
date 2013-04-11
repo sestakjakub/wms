@@ -23,6 +23,8 @@ class layerEntity {
     public $bBoxSouth;
     public $bBoxEast;
     public $bBoxWest;
+    public $minScale;
+    public $maxScale;
 }
 
 ?>

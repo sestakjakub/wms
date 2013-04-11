@@ -17,6 +17,7 @@ class wmsEntity {
     public $title;
     public $abstract;
     public $keywords;
+    public $version;
 }
 
 ?>

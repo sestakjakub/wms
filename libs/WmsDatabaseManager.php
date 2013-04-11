@@ -40,8 +40,9 @@ class wmsDatabaseManager {
         $name = $wmsEntity->name;
         $title = $wmsEntity->title;
         $abstract = $wmsEntity->abstract;
+        $version = $wmsEntity->version;
         
-        if ($this->mysqli->query("INSERT INTO wms VALUES (NULL, '$adress', '$name', '$title', '$abstract', '')") === TRUE)
+        if ($this->mysqli->query("INSERT INTO wms VALUES (NULL, '$adress', '$name', '$title', '$abstract', '','$version')") === TRUE)
         {
             return $this->mysqli->insert_id;
         } else {
@@ -61,6 +62,7 @@ class wmsDatabaseManager {
             $item->name = $row[2];
             $item->title = $row[3];
             $item->abstract = $row[4];
+            $item->version = $row[6];
             array_push($res, $item);
 
         }
@@ -74,6 +76,20 @@ class wmsDatabaseManager {
             return 0;
         return -1;
         
+    }
+    
+    public function GetWms($idWms)
+    {
+        $result = $this->mysqli->query("SELECT * FROM wms WHERE id = $idWms");
+        $result2 = $result->fetch_row();
+        $item = new wmsEntity();
+        $item->id = $result2[0];
+        $item->wmsUrl = $result2[1];
+        $item->name = $result2[2];
+        $item->title = $result2[3];
+        $item->abstract = $result2[4];
+        $item->version = $result2[6];
+        return $item;
     }
     
    
