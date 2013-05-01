@@ -17,7 +17,6 @@ class wmsDatabaseManager {
     public function __construct() {
         $this->mysqli = new mysqli($_ENV['OPENSHIFT_MYSQL_DB_HOST'], $_ENV['OPENSHIFT_MYSQL_DB_USERNAME'],$_ENV['OPENSHIFT_MYSQL_DB_PASSWORD'], "wms", $_ENV['OPENSHIFT_MYSQL_DB_PORT']);
         
-        /* check connection */
         if ($this->mysqli->connect_errno)
         {
             printf("Connect failed: %s\n", $this->mysqli->connect_error);

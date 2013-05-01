@@ -30,14 +30,27 @@ and open the template in the editor.
                 $address = $_GET["address"];
                 $xml = simplexml_load_file($address);
                 print("id:");
-                echo GetCapabilitiesParser::ParseAndAddToDB($xml, $address);
+                if(GetCapabilitiesParser::ParseAndAddToDB($xml, $address)==0)
+                {
+                    $address2=$address."?SERVICE=WMS&REQUEST=GetCapabilities";
+                    $xml = simplexml_load_file($address2);
+                    if(GetCapabilitiesParser::ParseAndAddToDB($xml, $address2)==0)
+                    {
+                        $address3=$address."SERVICE=WMS&REQUEST=GetCapabilities";
+                        $xml = simplexml_load_file($address3);
+                        if(GetCapabilitiesParser::ParseAndAddToDB($xml, $address3)==0)
+                                print("FAIL");
+                    }
+                        
+                }
+                
                 print("<p>".$address." was added to repository</p>");
                 ?>
                 <!--</h3>-->
             </div>
             <div data-role="content">
                 <p> 
-                    <a href="index.php" type="button">Go back to repository</a>
+                    <a href="index.php" data-ajax="false" type="button">Go back to repository</a>
                 </p>
                 
             </div>

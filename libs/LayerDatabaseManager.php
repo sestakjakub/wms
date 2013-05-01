@@ -17,7 +17,6 @@ class layerDatabaseManager {
     public function __construct() {
         $this->mysqli = new mysqli($_ENV['OPENSHIFT_MYSQL_DB_HOST'], $_ENV['OPENSHIFT_MYSQL_DB_USERNAME'],$_ENV['OPENSHIFT_MYSQL_DB_PASSWORD'], "wms", $_ENV['OPENSHIFT_MYSQL_DB_PORT']);
         
-        /* check connection */
         if ($this->mysqli->connect_errno)
         {
             printf("Connect failed: %s\n", $this->mysqli->connect_error);
@@ -72,6 +71,39 @@ class layerDatabaseManager {
             return $res;
         }
         
+    }
+    
+    public function GetAllUpperLayers($idLayer)
+    {
+        $res = array();
+        $layer = $idLayer;
+        $result = $this->mysqli->query("SELECT * FROM layer WHERE id = $layer");
+        while($result!=null)
+        {
+            $row = $result->fetch_row();
+            $item = new layerEntity();
+            $item->id = $row[0];
+            $item->WMSid = $row[1];
+            $item->upperLayerId = $row[2];
+            $item->name = $row[3];
+            $item->title = $row[4];
+            $item->abstract = $row[5];
+            $item->keywords = $row[6];
+            $item->bBoxNorth = $row[7];
+            $item->bBoxSouth = $row[8];
+            $item->bBoxEast = $row[9];
+            $item->bBoxWest = $row[10];
+            $item->minScale = $row[11];
+            $item->maxScale = $row[12];
+            array_push($res, $item);
+            $result->close();
+            $layer=$item->upperLayerId;
+            if ($item->upperLayerId !=0)
+                $result = $this->mysqli->query("SELECT * FROM layer WHERE id = $layer");
+            else
+                $result = null;
+        }
+        return $res;
     }
     
     public function GetRootLayerId($idWms)

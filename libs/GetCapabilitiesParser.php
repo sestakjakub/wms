@@ -28,8 +28,11 @@ class GetCapabilitiesParser {
         
         //foreach ($xml->Capability->Request->GetMap->Format as $key)
         //    print("<p>format".$key."</p>");
-        
-                
+        if (($wms->name)=="" && ($wms->title)=="")
+        {
+            return 0;
+        }
+            
         $dataMan = new wmsDatabaseManager();
         $wmsId = $dataMan->AddWms($wms);
         

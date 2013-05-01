@@ -41,67 +41,19 @@ and open the template in the editor.
     </head>
     <body>
         <div data-role="page" id="index">
-            <?php
-            include_once('libs/WmsDatabaseManager.php'); 
-            include_once('entities/wmsEntity.php');
-            include_once('libs/LayerDatabaseManager.php'); 
-            include_once('entities/layerEntity.php'); 
-            $wmsMan = new wmsDatabaseManager();
-            $layerMan = new layerDatabaseManager();
-
-            function PrintLevel($layerMan,$id, $wmsid, $level)
-                {
-                    foreach ($layerMan->GetUnderLayers($wmsid, $id) as $layer)
-                    {
-                        if(count($layerMan->GetUnderLayers($wmsid, $layer->id))==0)
-                            print("<li><a href='layerDetails2.php?layerid=".$layer->id."'  data-ajax=\"false\"  >".$layer->title."</a></li>");
-
-                    }
-                    print("
-                        </ul>
-                     </div>");
-                    foreach ($layerMan->GetUnderLayers($wmsid, $id) as $layer)
-                    {
-                        if(count($layerMan->GetUnderLayers($wmsid, $layer->id))!=0)
-                        {
-                            //print("<li data-role='list-divider'>");
-                            print("<div data-role=\"collapsible\">
-        <h2>");
-                            for ($i = 0; $i <= $level; $i++) {
-                                print("-->");
-                            }
-                            print($layer->title);
-                            print("</h2>
-        <ul data-role=\"listview\">");
-                            PrintLevel($layerMan, $layer->id, $wmsid, $level+1);
-                        }
-                    }
-                };
-                
-            foreach ($wmsMan->GetAllWms() as $item)
-            {
-                
-                print("<div data-role=\"panel\" data-position=\"right\" data-display=\"overlay\" id=\"mypanel".$layerMan->GetRootLayerId($item->id)."\">
-                <!-- panel content goes here -->
-<div data-role=\"collapsible-set\" data-theme=\"b\">
-<div data-role=\"collapsible\">
-<h2>".$item->title."</h2>
-        <ul data-role=\"listview\">
-                ");
-                PrintLevel($layerMan, $layerMan->GetRootLayerId($item->id), $item->id, 0);
-                print("
-                </ul>
-            </div></div>");
-            }
-            ?>
-            
             <div data-theme="a" data-role="header">
-                <a data-role="button" data-ajax="false" href="addWms.php" class="ui-btn-left">
+                <a data-role="button" href="addWms.php" class="ui-btn-left">
                     Add WMS
                 </a>
                 <h3>
                     WMS in repository
                 </h3>
+                <?php
+                include_once('libs/WmsDatabaseManager.php'); 
+                include_once('entities/wmsEntity.php');
+                include_once('libs/LayerDatabaseManager.php'); 
+                include_once('entities/layerEntity.php'); 
+                ?>
             </div>
             <div data-role="content">
                 <table data-role="table" id="wms-table" data-mode="reflow" class="ui-responsive table-stroke">
@@ -111,13 +63,17 @@ and open the template in the editor.
                         <th data-priority="1">Abstract</th>
                         <th data-priority="5">Details</th>
                         <th data-priority="5">Layers</th>
+                        <th data-priority="5">Remove</th>
+                        <th data-priority="5">Reparse</th>
                         
                         
                       </tr>
                     </thead>
                     <tbody>
                     <?
-                        
+                        $wmsMan = new wmsDatabaseManager();
+                        $layerMan = new layerDatabaseManager();
+
                         foreach ($wmsMan->GetAllWms() as $item)
                         {
                             print("<tr>");
@@ -131,7 +87,9 @@ and open the template in the editor.
                             <p>id: ".$item->id."</p>
                             <p>version: ".$item->version."</p>
                             </div>");
-                            print("<td><a data-role='button' href=\"#mypanel".$layerMan->GetRootLayerId($item->id)."\">Show layers</a></td>");
+                            print("<td><a data-role='button' data-transition=\"slide\" href=layerDetails.php?layerid=".$layerMan->GetRootLayerId($item->id).">Layers</a></td>");
+                            print("<td><a data-role='button' class='remove' wmsId=$item->id>Remove</a></td>");
+                            print("<td><a data-role='button' class='reparse' wmsId=$item->id>Reparse</a></td>");
                             print("</tr>");
                         }
                     ?>   
@@ -141,4 +99,3 @@ and open the template in the editor.
         </div>
     </body>
 </html>
-
