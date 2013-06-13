@@ -29,7 +29,7 @@ and open the template in the editor.
                 
                 $address = $_GET["address"];
                 $xml = simplexml_load_file($address);
-                print("id:");
+                //print("id:");
                 if(GetCapabilitiesParser::ParseAndAddToDB($xml, $address)==0)
                 {
                     $address2=$address."?SERVICE=WMS&REQUEST=GetCapabilities";

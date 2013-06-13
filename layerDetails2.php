@@ -74,9 +74,9 @@ and open the template in the editor.
                     }
                         
                 }
-                $text= $wms->wmsUrl;
-                list($url, $rest) = explode("?", $text, 2);
-                print("<li>WMS adress: ".$url."<li>"); 
+     //           $text= $wms->wmsUrl;
+    //            list($url, $rest) = explode("?", $text, 2);
+      //          print("<li>WMS adress: ".$url."<li>"); 
                 ?>
                 
                 <li data-role='list-divider'>Bounding Box:</li>

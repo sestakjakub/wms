@@ -21,13 +21,11 @@ class wmsDatabaseManager {
         {
             printf("Connect failed: %s\n", $this->mysqli->connect_error);
             exit();
-        }
-        ;
+        };
     }
     
     public function __destruct() {
         $this->mysqli->close();
-        ;
     }
     
     //return
@@ -39,14 +37,18 @@ class wmsDatabaseManager {
         $name = $wmsEntity->name;
         $title = $wmsEntity->title;
         $abstract = $wmsEntity->abstract;
+        $keywords = "";
         $version = $wmsEntity->version;
         
-        if ($this->mysqli->query("INSERT INTO wms VALUES (NULL, '$adress', '$name', '$title', '$abstract', '','$version')") === TRUE)
-        {
+        $stmt = $this->mysqli->prepare("INSERT INTO wms VALUES (NULL, ?, ?, ?, ?, ?,?)");
+        $stmt->bind_param("ssssss", $adress, $name, $title, $abstract, $keywords, $version);
+        if ($stmt->execute()) {
+            $stmt->close();
             return $this->mysqli->insert_id;
-        } else {
-            return 0;
         }
+        echo "Execute failed: (" . $stmt->errno . ") " . $stmt->error;
+        $stmt->close();
+        return 0;    
     }    
     
     public function GetAllWms()
@@ -69,29 +71,41 @@ class wmsDatabaseManager {
         return $res;
     }
     
+    //returns 0 on success
+    //returns -1 on failiure
     public function RemoveWMS($id)
     {
-        if ($this->mysqli->query("DELETE FROM wms WHERE id=$id ") === TRUE)
+        $stmt = $this->mysqli->prepare("DELETE FROM wms WHERE id=?");
+        $stmt->bind_param("i", $id);
+        if ($stmt->execute()) {
             return 0;
+        }
+        echo "Execute failed: (" . $stmt->errno . ") " . $stmt->error;
+        $stmt->close();
         return -1;
-        
     }
     
+    //returns null on failiure
     public function GetWms($idWms)
     {
-        $result = $this->mysqli->query("SELECT * FROM wms WHERE id = $idWms");
-        $result2 = $result->fetch_row();
-        $item = new wmsEntity();
-        $item->id = $result2[0];
-        $item->wmsUrl = $result2[1];
-        $item->name = $result2[2];
-        $item->title = $result2[3];
-        $item->abstract = $result2[4];
-        $item->version = $result2[6];
-        return $item;
+        $stmt = $this->mysqli->prepare("SELECT * FROM wms WHERE id = ?");
+        $stmt->bind_param("i", $idWms);
+        if ($stmt->execute())
+        {
+            $result2=$stmt->fetch();
+            $item = new wmsEntity();
+            $item->id = $result2[0];
+            $item->wmsUrl = $result2[1];
+            $item->name = $result2[2];
+            $item->title = $result2[3];
+            $item->abstract = $result2[4];
+            $item->version = $result2[6];
+            $stmt->close();
+            return $item;
+        }
+        $stmt->close();
+        return null;
     }
-    
-   
 }
 
 ?>

@@ -21,8 +21,7 @@ class layerDatabaseManager {
         {
             printf("Connect failed: %s\n", $this->mysqli->connect_error);
             exit();
-        }
-        ;
+        };
     }
     
     public function __destruct() {
@@ -31,148 +30,132 @@ class layerDatabaseManager {
     
     public function AddLayer(layerEntity $layer)
     {
-        if ($this->mysqli->query("INSERT INTO layer VALUES (NULL, '$layer->WMSid', '$layer->upperLayerId', '$layer->name', '$layer->title', '$layer->abstract', '$layer->keywords','$layer->bBoxNorth','$layer->bBoxSouth','$layer->bBoxEast','$layer->bBoxWest','$layer->minScale','$layer->maxScale')") === TRUE)
-        {
+        $stmt = $this->mysqli->prepare("INSERT INTO layer VALUES (NULL,?,?,?,?,?,?,?,?,?,?,?,?)");
+        $stmt->bind_param("iissssddddii", $layer->WMSid, $layer->upperLayerId,
+                $layer->name, $layer->title, $layer->abstract, $layer->keywords,
+                $layer->bBoxNorth, $layer->bBoxSouth, $layer->bBoxEast, $layer->bBoxWest,
+                $layer->minScale, $layer->maxScale);
+        if ($stmt->execute()) {
+            $stmt->close();
             return $this->mysqli->insert_id;
-        } else {
-            return 0;
         }
+        echo "Execute failed: (" . $stmt->errno . ") " . $stmt->error;
+        $stmt->close();
+        return 0;    
+        
     }
     
     //parameters
     //idWms-id of wms
     //idUpperLayer-id of upper layer, 0 for root
-    //return array of layerEntity objects
+    //returns array of layerEntity objects
+    //returns null on failiure
     public function GetUnderLayers($idWms, $idUpperLayer)
     {
-        $result = $this->mysqli->query("SELECT * FROM layer WHERE wmsId = $idWms AND upperLayerId = $idUpperLayer");
-        if($result!=null)
-        {
+        $stmt = $this->mysqli->prepare("SELECT * FROM layer WHERE wmsId = ? AND upperLayerId = ?");
+        $stmt->bind_param("ii", $idWms, $idUpperLayer);
+        if ($stmt->execute()) {
+            $stmt->bind_result($row0,$row1,$row2,$row3,$row4,$row5,$row6,$row7,$row8,$row9,$row10,$row11,$row12);
             $res = array();
-            while ($row = $result->fetch_row()) 
+            while($stmt->fetch())
             {
                 $item = new layerEntity();
-                $item->id = $row[0];
-                $item->WMSid = $row[1];
-                $item->upperLayerId = $row[2];
-                $item->name = $row[3];
-                $item->title = $row[4];
-                $item->abstract = $row[5];
-                $item->keywords = $row[6];
-                $item->bBoxNorth = $row[7];
-                $item->bBoxSouth = $row[8];
-                $item->bBoxEast = $row[9];
-                $item->bBoxWest = $row[10];
-                $item->minScale = $row[11];
-                $item->maxScale = $row[12];
+                $item->id = $row0;
+                $item->WMSid = $row1;
+                $item->upperLayerId = $row2;
+                $item->name = $row3;
+                $item->title = $row4;
+                $item->abstract = $row5;
+                $item->keywords = $row6;
+                $item->bBoxNorth = $row7;
+                $item->bBoxSouth = $row8;
+                $item->bBoxEast = $row9;
+                $item->bBoxWest = $row10;
+                $item->minScale = $row11;
+                $item->maxScale = $row12;
                 array_push($res, $item);
             }
-            $result->close();
+            $stmt->close();
             return $res;
         }
+        return null;
         
     }
     
     public function GetAllUpperLayers($idLayer)
     {
-        $res = array();
-        $layer = $idLayer;
-        $result = $this->mysqli->query("SELECT * FROM layer WHERE id = $layer");
-        while($result!=null)
+        $res=array();
+        $layer=$this->GetLayer($idLayer);
+        array_push($res,$layer);
+        while(true)
         {
-            $row = $result->fetch_row();
-            $item = new layerEntity();
-            $item->id = $row[0];
-            $item->WMSid = $row[1];
-            $item->upperLayerId = $row[2];
-            $item->name = $row[3];
-            $item->title = $row[4];
-            $item->abstract = $row[5];
-            $item->keywords = $row[6];
-            $item->bBoxNorth = $row[7];
-            $item->bBoxSouth = $row[8];
-            $item->bBoxEast = $row[9];
-            $item->bBoxWest = $row[10];
-            $item->minScale = $row[11];
-            $item->maxScale = $row[12];
-            array_push($res, $item);
-            $result->close();
-            $layer=$item->upperLayerId;
-            if ($item->upperLayerId !=0)
-                $result = $this->mysqli->query("SELECT * FROM layer WHERE id = $layer");
+            if($layer->upperLayerId!=0)
+            {
+                $idLayer=$layer->upperLayerId;
+                $layer=$this->GetLayer($idLayer);
+                array_push($res,$layer);
+            }
             else
-                $result = null;
+                return $res;
         }
         return $res;
     }
     
     public function GetRootLayerId($idWms)
     {
-        $result = $this->mysqli->query("SELECT * FROM layer WHERE wmsId = $idWms AND upperLayerId = 0");
-        $result2 = $result->fetch_row();
-        return $result2[0];
-    }
-    
-    public function GetLayersInPosition($posX, $posY)
-    {
-        $result = $this->mysqli->query("SELECT * FROM layer WHERE bBoxNorth > $posY AND bBoxSouth < $posY AND bBoxEast < $posX AND bBoxWest > $posX");
-        if($result!=null)
-        {
-            $res = array();
-            while ($row = $result->fetch_row()) 
-            {
-                $item = new layerEntity();
-                $item->id = $row[0];
-                $item->WMSid = $row[1];
-                $item->upperLayerId = $row[2];
-                $item->name = $row[3];
-                $item->title = $row[4];
-                $item->abstract = $row[5];
-                $item->keywords = $row[6];
-                $item->bBoxNorth = $row[7];
-                $item->bBoxSouth = $row[8];
-                $item->bBoxEast = $row[9];
-                $item->bBoxWest = $row[10];
-                $item->minScale = $row[11];
-                $item->maxScale = $row[12];
-                array_push($res, $item);
-            }
-            $result->close();
-            return $res;
+        $stmt = $this->mysqli->prepare("SELECT id FROM layer WHERE wmsId = ? AND upperLayerId = 0");
+        $stmt->bind_param("i", $idWms);
+        if ($stmt->execute()) {
+            $resId=0;
+            $stmt->bind_result($resId);
+            $stmt->fetch();
+            $stmt->close();
+            return $resId;
         }
-        
+        return null;
     }
     
-    
-//    return layerEntity
-    
+//    returns layerEntity object on succ
+//    returns null on failiure    
     public function GetLayer($idLayer)
     {
-        $result = $this->mysqli->query("SELECT * FROM layer WHERE id = $idLayer");
-        $result2 = $result->fetch_row();
-        $item = new layerEntity();
-        $item->id = $result2[0];
-        $item->WMSid = $result2[1];
-        $item->upperLayerId = $result2[2];
-        $item->name = $result2[3];
-        $item->title = $result2[4];
-        $item->abstract = $result2[5];
-        $item->keywords = $result2[6];
-        $item->bBoxNorth = $result2[7];
-        $item->bBoxSouth = $result2[8];
-        $item->bBoxEast = $result2[9];
-        $item->bBoxWest = $result2[10];
-        $item->minScale = $result2[11];
-        $item->maxScale = $result2[12];
-        return $item;
+        $stmt = $this->mysqli->prepare("SELECT * FROM layer WHERE id = ?");
+        
+        $stmt->bind_param("i", $idLayer);
+        if ($stmt->execute()) 
+        {
+            $stmt->bind_result($row0,$row1,$row2,$row3,$row4,$row5,$row6,$row7,$row8,$row9,$row10,$row11,$row12);
+            $stmt->fetch();
+            $item = new layerEntity();
+            $item->id = $row0;
+            $item->WMSid = $row1;
+            $item->upperLayerId = $row2;
+            $item->name = $row3;
+            $item->title = $row4;
+            $item->abstract = $row5;
+            $item->keywords = $row6;
+            $item->bBoxNorth = $row7;
+            $item->bBoxSouth = $row8;
+            $item->bBoxEast = $row9;
+            $item->bBoxWest = $row10;
+            $item->minScale = $row11;
+            $item->maxScale = $row12;
+            $stmt->close();
+            return $item;
+        }
+        return null;
+        
     }
     
+    //returns 0 on succ, -1 on failiure
     public function RemoveLayersOfWms($wmsId)
     {
-        if ($this->mysqli->query("DELETE FROM wms WHERE wmsId=$wmsId") === TRUE)
+        $stmt = $this->mysqli->prepare("DELETE FROM wms WHERE wmsId=?");
+        $stmt->bind_param("i", $wmsId);
+        if ($stmt->execute()) {
             return 0;
+        }
         return -1;
-        
     }
     
 }
