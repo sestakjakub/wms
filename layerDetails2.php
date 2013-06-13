@@ -39,22 +39,23 @@ and open the template in the editor.
         <div data-role="page" data-add-back-btn="true" id="layerDetails">
             <div data-theme="a" data-role="header">
                 <h3>
-                    <?php echo $layer->title ?>
+                    <?php echo htmlspecialchars($layer->title, ENT_COMPAT, 'UTF-8') ?>
                 </h3>
             </div>
             <div data-role="content">
             <ul data-role='listview'>  
-                <li data-role='list-divider'>Server Title: <?php echo $wms->title ?></li>
+                <li data-role='list-divider'>Server Title: <?php echo htmlspecialchars($wms->title, ENT_COMPAT, 'UTF-8') ?></li>
                 
                 <?php
                 $array = array_reverse($layerMan->GetAllUpperLayers($layerId));
                 foreach ($array as $lay)
                 {
-                    print("<li data-role='list-divider'>".$lay->title."</li>");
+                    print("<li data-role='list-divider'>");
+                    echo htmlspecialchars($lay->title, ENT_COMPAT, 'UTF-8').'</li>';
                     if ($lay->name!="")
-                        print("<li><h3>Name: ".$lay->name."</h3></li>");
+                        echo '<li><h3>Name: '.htmlspecialchars($lay->name, ENT_COMPAT, 'UTF-8').'</h3></li>';
                     if ($lay->abstract!="")
-                        print("<li><p>Abstract: ".$lay->abstract."</p></li>");
+                        echo '<li><p>Abstract: '.htmlspecialchars($lay->abstract, ENT_COMPAT, 'UTF-8').'</p></li>';
                     if ($lay->minScale!=0)
                         print("<li><p>Minimum scale denominator: ".$lay->minScale."</p></li>");
                     if ($lay->maxScale!=0)

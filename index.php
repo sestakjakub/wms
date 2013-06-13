@@ -54,7 +54,9 @@ and open the template in the editor.
                     foreach ($layerMan->GetUnderLayers($wmsid, $id) as $layer)
                     {
                         if(count($layerMan->GetUnderLayers($wmsid, $layer->id))==0)
-                            print("<li><a href='layerDetails2.php?layerid=".$layer->id."'  data-ajax=\"false\"  >".$layer->title."</a></li>");
+                            print("<li><a href='layerDetails2.php?layerid=".$layer->id."'  data-ajax=\"false\"  >");
+                        echo htmlspecialchars($layer->title, ENT_COMPAT, 'UTF-8');
+                        print("</a></li>");
 
                     }
                     print("
@@ -70,7 +72,7 @@ and open the template in the editor.
                             for ($i = 0; $i <= $level; $i++) {
                                 print("-->");
                             }
-                            print($layer->title);
+                            echo htmlspecialchars($layer->title, ENT_COMPAT, 'UTF-8');
                             print("</h2>
         <ul data-role=\"listview\">");
                             PrintLevel($layerMan, $layer->id, $wmsid, $level+1);
@@ -84,9 +86,9 @@ and open the template in the editor.
                 print("<div data-role=\"panel\" data-position=\"right\" data-display=\"overlay\" id=\"mypanel".$layerMan->GetRootLayerId($item->id)."\">
                 <!-- panel content goes here -->
 <div data-role=\"collapsible-set\" data-theme=\"b\">
-<div data-role=\"collapsible\">
-<h2>".$item->title."</h2>
-        <ul data-role=\"listview\">
+<div data-role=\"collapsible\">");
+echo '<h2>'.htmlspecialchars($item->title, ENT_COMPAT, 'UTF-8').'</h2>';
+        print("<ul data-role=\"listview\">
                 ");
                 PrintLevel($layerMan, $layerMan->GetRootLayerId($item->id), $item->id, 0);
                 print("
@@ -121,16 +123,16 @@ and open the template in the editor.
                         foreach ($wmsMan->GetAllWms() as $item)
                         {
                             print("<tr>");
-                            print("<th>".$item->title."</th><td>".$item->abstract."</td>");
+                            echo '<th>'.htmlspecialchars($item->title, ENT_COMPAT, 'UTF-8').'</th><td>'.htmlspecialchars($item->abstract, ENT_COMPAT, 'UTF-8').'</td>';
                             print("<td><a data-role='button' data-inline=\"true\" data-transition=\"pop\" data-rel=\"popup\" href='#popupBasic".$item->id."'>Details</a></td>");
-                            print("<div data-role=\"popup\" id=\"popupBasic".$item->id."\">
-                            <h2>".$item->title."</h2>
-                            <h3>".$item->abstract."</h3>
-                            <h3>".$item->name."</h3>
-                            <p>".$item->wmsUrl."</p>
-                            <p>id: ".$item->id."</p>
-                            <p>version: ".$item->version."</p>
-                            </div>");
+                            print("<div data-role=\"popup\" id=\"popupBasic".$item->id."\">");
+                            echo '<h2>'.htmlspecialchars($item->title, ENT_COMPAT, 'UTF-8').'</h2>';
+                            echo '<h3>'.htmlspecialchars($item->abstract, ENT_COMPAT, 'UTF-8').'</h3>';
+                            echo '<h3>'.htmlspecialchars($item->name, ENT_COMPAT, 'UTF-8').'</h3>';
+                            echo '<p>'.htmlspecialchars($item->wmsUrl, ENT_COMPAT, 'UTF-8').'</p>';
+                            echo '<p>id:'.$item->id.'</p>';
+                            echo '<p>version:'.htmlspecialchars($item->version, ENT_COMPAT, 'UTF-8').'</p>';
+                            print("</div>");
                             print("<td><a data-role='button' href=\"#mypanel".$layerMan->GetRootLayerId($item->id)."\">Show layers</a></td>");
                             print("</tr>");
                         }
